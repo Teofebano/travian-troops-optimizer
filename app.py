@@ -1,5 +1,5 @@
 import streamlit as st
-import json
+import re
 
 from login import login_required
 from troops_config import OASIS_DEFENSE,TROOPS_TABLE
@@ -41,12 +41,34 @@ with col2:
 st.markdown("---")
 st.subheader("🐍 Oasis Troops")
 oasis_composition = {}
-cols = st.columns(4)
 
-for i, animal in enumerate(OASIS_DEFENSE.keys()):
-    with cols[i % 4]:
-        count = st.number_input(animal, min_value=0, max_value=100, value=0, step=1)
-        oasis_composition[animal] = count
+if 'oasis_composition' not in st.session_state:
+    st.session_state.oasis_composition = {animal: 0 for animal in OASIS_DEFENSE}
+
+# Auto Parser
+with st.expander("📋 Auto Parse Oasis Animal List (Expand to See)"):
+    oasis_text = st.text_area("Paste from in-game oasis message:")
+    if st.button("Parse Oasis Animals"):
+        for line in oasis_text.splitlines():
+            for animal in OASIS_DEFENSE:
+                if animal in line:
+                    match = re.search(r"\b(\d+)\b", line)
+                    if match:
+                        st.session_state.oasis_composition[animal] = int(match.group(1))
+
+# Manual Filling
+cols = st.columns(len(OASIS_DEFENSE))
+for idx, animal in enumerate(OASIS_DEFENSE):
+    with cols[idx]:
+        st.session_state.oasis_composition[animal] = st.number_input(
+            animal,
+            min_value=0,
+            step=1,
+            value=st.session_state.oasis_composition[animal],
+            key=f"oasis_{animal}"
+        )
+
+oasis_composition = st.session_state.oasis_composition.copy()
 
 if st.button("Run Optimization"):
     result = run_simulated_annealing(
