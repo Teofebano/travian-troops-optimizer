@@ -49,12 +49,16 @@ if 'oasis_composition' not in st.session_state:
 with st.expander("📋 Auto Parse Oasis Animal List (Expand to See)"):
     oasis_text = st.text_area("Paste from in-game oasis message:")
     if st.button("Parse Oasis Animals"):
+        for animal in OASIS_DEFENSE:
+            st.session_state.oasis_composition[animal] = 0
+
         for line in oasis_text.splitlines():
             for animal in OASIS_DEFENSE:
                 if animal in line:
                     match = re.search(r"\b(\d+)\b", line)
                     if match:
                         st.session_state.oasis_composition[animal] = int(match.group(1))
+
 
 # Manual Filling
 cols = st.columns(len(OASIS_DEFENSE))
