@@ -169,7 +169,7 @@ def run_simulated_annealing(tribe: str,
     troop_losses = {}
     total_loss_cost = 0
     for troop, count in best_counts.items():
-        troop_loss = round(count * loss_percent // 100)
+        troop_loss = round(count * loss_percent / 100)
         troop_losses[troop] = troop_loss
         cost_per_unit = TROOPS_TABLE[tribe][troop]["cost"]
         total_loss_cost += troop_loss * cost_per_unit
